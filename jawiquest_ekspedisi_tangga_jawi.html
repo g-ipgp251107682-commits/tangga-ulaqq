@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JawiQuest: Ekspedisi Tangga Jawi</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--p:#6d28d9;--pl:#ede9fe;--b:#2563eb;--g:#16a34a;--y:#facc15;--ink:#1e1b4b;color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:"Trebuchet MS",Verdana,sans-serif;color:var(--ink);background:linear-gradient(180deg,#a5d8f3,#d9f0fb 60%,#86d17a);min-height:100%;padding:env(safe-area-inset-top,0px) 10px env(safe-area-inset-bottom,0px)}
+.jw{font-family:"Noto Naskh Arabic","Amiri","Traditional Arabic","Arial",serif;font-weight:700;direction:rtl;unicode-bidi:isolate;font-size:1.25em}
+.wrap{max-width:840px;margin:0 auto;padding:12px 0 24px}
+.hide{display:none!important}
+.card{background:#fff;border:4px solid var(--p);border-radius:22px;padding:18px;box-shadow:0 6px 0 #c4b5fd}
+h1{margin:0;color:var(--p);font-size:clamp(24px,6vw,40px);text-align:center;line-height:1.15}
+.sub{text-align:center;color:var(--b);font-weight:700;margin:4px 0 12px}
+button{font:inherit;font-weight:800;border:0;border-radius:16px;padding:12px 20px;cursor:pointer;color:#fff;background:var(--p);box-shadow:0 4px 0 #4c1d95;touch-action:manipulation;transition:transform .12s ease}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 #4c1d95}
+button:disabled{opacity:.5;cursor:not-allowed}
+.big{font-size:clamp(18px,4.5vw,24px);padding:14px 26px}
+.g{background:var(--g);box-shadow:0 4px 0 #166534}.bl{background:var(--b);box-shadow:0 4px 0 #1e3a8a}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.seg button{background:var(--pl);color:var(--p);box-shadow:0 3px 0 #c4b5fd}.seg button.on{background:var(--p);color:#fff}
+input[type=text]{font:inherit;font-size:18px;padding:10px 12px;border:3px solid #c4b5fd;border-radius:12px;width:100%;max-width:240px}
+ol.how{margin:8px 0;padding-left:22px;line-height:1.5;font-size:clamp(15px,3.8vw,18px)}
+
+/* Rekaan Muka Depan Berilustrasi */
+.cover-card{padding:0;overflow:hidden;border:5px solid #92400e;box-shadow:0 10px 0 #78350f}
+.hero-banner{position:relative;width:100%;background:#c5e17a;border-bottom:5px solid #92400e}
+.hero-svg{display:block;width:100%;height:auto}
+.hero-cta-wrap{position:absolute;bottom:clamp(10px,3%,22px);left:0;right:0;display:flex;justify-content:center;z-index:10;padding:0 12px}
+.cta-hero{background:linear-gradient(180deg,#ffea47 0%,#f59e0b 55%,#d97706 100%);color:#451a03;border:4px solid #fff;border-radius:999px;padding:clamp(10px,2.5vw,16px) clamp(26px,6vw,44px);font-size:clamp(18px,4.8vw,28px);font-weight:900;letter-spacing:.5px;text-shadow:0 2px 0 rgba(255,255,255,.7);box-shadow:0 6px 0 #92400e,0 10px 20px rgba(0,0,0,.3);animation:pulseBtn 2s infinite}
+.cta-hero:hover{transform:scale(1.04)}
+.cta-hero:active{transform:translateY(4px) scale(.99);box-shadow:0 2px 0 #92400e}
+@keyframes pulseBtn{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+.setup-panel{padding:16px 18px 20px;background:linear-gradient(180deg,#fffbeb,#ffffff)}
+.how-box{background:#f5f3ff;border:2px dashed #a78bfa;border-radius:16px;padding:10px 14px;margin-top:10px}
+
+.hud{display:grid;gap:8px;margin-bottom:8px}
+.pp{background:#fff;border:4px solid #ddd;border-radius:16px;padding:6px 10px;text-align:center;font-weight:800;font-size:clamp(14px,3.6vw,18px)}
+.pp.act{background:#fffbe6;box-shadow:0 0 0 3px var(--p)}
+.pp small{display:block;font-weight:700;color:#475569}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.top b{color:var(--p);font-size:clamp(16px,4vw,22px)}
+.top button{padding:8px 14px;font-size:14px}
+#board{position:relative;isolation:isolate;display:grid;width:100%;container-type:inline-size;border:6px solid #fff;border-radius:34px;overflow:hidden;background:#8fd0ee}
+.cell{position:relative;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+.cell span{position:relative;z-index:3;color:#1e5fb4;font-weight:800;font-size:calc(100cqw/var(--cols)*.38);text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff}
+.cell.ch{box-shadow:inset 0 0 0 3px #7c3aed}
+.cell i{position:absolute;z-index:3;top:1%;right:6%;font-style:normal;font-size:calc(100cqw/var(--cols)*.24)}
+svg.ov{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.tok{position:absolute;z-index:6;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;transform:translate(-50%,-50%);transition:left .26s ease,top .26s ease;box-shadow:0 3px 6px #0006;width:calc(100cqw/var(--cols)*.42);height:calc(100cqw/var(--cols)*.42);font-size:calc(100cqw/var(--cols)*.25)}
+.ctl{display:flex;align-items:center;justify-content:center;gap:14px;margin:12px 0 6px;flex-wrap:wrap}
+.die{width:74px;height:74px;background:#fff;border:4px solid var(--p);border-radius:16px;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:8px;gap:2px}
+.die b{border-radius:50%}.die b.on{background:var(--ink)}
+.die.roll{animation:sh .25s infinite}
+@keyframes sh{0%{transform:rotate(-12deg)}50%{transform:rotate(12deg) scale(1.08)}100%{transform:rotate(-12deg)}}
+#msg{text-align:center;font-weight:800;font-size:clamp(16px,4vw,20px);min-height:28px;color:var(--p)}
+.ov2{position:fixed;inset:0;background:#1e1b4bcc;display:flex;align-items:center;justify-content:center;z-index:50;padding:14px;overflow:auto}
+.modal{background:#fff;border:5px solid var(--y);border-radius:24px;padding:18px;max-width:520px;width:100%;text-align:center;margin:auto}
+.modal h2{margin:0;color:var(--p);font-size:clamp(20px,5vw,28px)}
+.mq{font-size:clamp(18px,4.6vw,24px);font-weight:700;margin:12px 0;line-height:1.4}
+.pic{font-size:clamp(46px,14vw,76px);line-height:1.1;margin:4px 0}
+.opt{display:block;width:100%;margin:8px 0;font-size:clamp(20px,5vw,26px);background:var(--pl);color:var(--ink);box-shadow:0 4px 0 #c4b5fd;border:3px solid #c4b5fd}
+.opt.bad{background:#fee2e2;border-color:#f87171;opacity:.7}
+.opt.ok{background:#bbf7d0;border-color:var(--g)}
+.hint{background:#fef9c3;border-radius:12px;padding:8px;margin:8px 0;font-weight:700}
+.fb{font-size:clamp(20px,5vw,28px);font-weight:800;color:var(--g);margin:8px 0}
+.stars{font-size:30px;margin-bottom:8px}
+.jungle{background:linear-gradient(#2f855a,#48bb78);border-radius:26px;padding:clamp(8px,2vw,16px);margin-bottom:8px}
+.sign{margin:0 auto 10px;max-width:92%;text-align:center;background:linear-gradient(#ecbb68,#c98d3f);border:4px solid #8a5a22;border-radius:20px;color:#fff;font-weight:800;padding:4px 10px;font-size:clamp(14px,3.8vw,26px);text-shadow:0 2px 0 #8a5a22}
+.zoo{text-align:center;font-size:clamp(28px,8vw,52px);margin-top:6px;letter-spacing:6px}
+.ctl{background:#ffffffb0;border-radius:22px;padding:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- SKRIN UTAMA DENGAN ILUSTRASI WATAK & SEPANDUK JAWIQUEST -->
+<section id="start" class="card cover-card">
+  <div class="hero-banner">
+    <svg class="hero-svg" viewBox="0 0 900 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi Kucing Adiwira Comel JawiQuest di dalam bilik darjah">
+      <defs>
+        <linearGradient id="wallGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#d9f99d"/>
+          <stop offset="72%" stop-color="#bef264"/>
+          <stop offset="72.5%" stop-color="#fef3c7"/>
+          <stop offset="100%" stop-color="#fde68a"/>
+        </linearGradient>
+        <linearGradient id="sunBeam" x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="furGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#fffbeb"/>
+          <stop offset="100%" stop-color="#fde68a"/>
+        </linearGradient>
+        <linearGradient id="suitBlue" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#38bdf8"/>
+          <stop offset="100%" stop-color="#2563eb"/>
+        </linearGradient>
+        <linearGradient id="capeRed" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#fb7185"/>
+          <stop offset="100%" stop-color="#e11d48"/>
+        </linearGradient>
+        <linearGradient id="scrollGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#fef9c3"/>
+          <stop offset="50%" stop-color="#fde047"/>
+          <stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+        <linearGradient id="jawiGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#38bdf8"/>
+          <stop offset="100%" stop-color="#1d4ed8"/>
+        </linearGradient>
+        <linearGradient id="questGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#fef08a"/>
+          <stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+        <filter id="dropShadow" x="-15%" y="-15%" width="130%" height="135%">
+          <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#451a03" flood-opacity="0.25"/>
+        </filter>
+      </defs>
+
+      <!-- Dinding Pastel & Lantai Kayu Cerah -->
+      <rect width="900" height="540" fill="url(#wallGrad)"/>
+      <rect x="0" y="382" width="900" height="10" fill="#fbbf24"/>
+
+      <!-- Papan Kenyataan Kiri (Nota Pastel) -->
+      <g transform="translate(24,118)">
+        <rect width="122" height="162" rx="14" fill="#bae6fd" stroke="#fff" stroke-width="5"/>
+        <rect x="14" y="18" width="42" height="54" fill="#fff" rx="6"/>
+        <rect x="64" y="18" width="44" height="54" fill="#fff" rx="6"/>
+        <rect x="16" y="84" width="28" height="24" fill="#fef08a" rx="5"/>
+        <rect x="52" y="86" width="32" height="22" fill="#fecdd3" rx="5"/>
+        <circle cx="35" cy="22" r="3" fill="#f43f5e"/>
+        <circle cx="86" cy="22" r="3" fill="#3b82f6"/>
+      </g>
+
+      <!-- Papan Kenyataan Peta Dunia Comel -->
+      <g transform="translate(166,118)">
+        <rect x="48" y="-16" width="74" height="16" rx="6" fill="#fff" stroke="#bae6fd" stroke-width="2"/>
+        <rect width="170" height="162" rx="14" fill="#bae6fd" stroke="#fff" stroke-width="5"/>
+        <rect x="12" y="14" width="146" height="134" fill="#f0f9ff" rx="8"/>
+        <path d="M26,42 Q42,32 54,48 Q46,66 36,64 Z" fill="#fbbf24"/>
+        <path d="M44,74 Q58,74 56,104 Q44,114 40,94 Z" fill="#fcd34d"/>
+        <path d="M84,36 Q116,30 136,48 Q134,72 110,74 Q92,66 84,52 Z" fill="#fbbf24"/>
+        <path d="M84,68 Q102,68 100,102 Q88,108 82,86 Z" fill="#f59e0b"/>
+        <path d="M122,92 Q140,90 142,106 Q128,112 120,102 Z" fill="#fcd34d"/>
+      </g>
+
+      <!-- Pintu & Piala Emas di Belakang -->
+      <rect x="366" y="88" width="150" height="294" rx="12" fill="#fff" stroke="#e2e8f0" stroke-width="6"/>
+      <rect x="382" y="104" width="118" height="278" rx="8" fill="#f1f5f9"/>
+      <g transform="translate(612,56)">
+        <path d="M16,14 H58 L50,48 C48,60 26,60 24,48 Z" fill="#fde047" stroke="#eab308" stroke-width="2.5"/>
+        <path d="M16,20 C4,20 4,40 19,42 M58,20 C70,20 70,40 55,42" fill="none" stroke="#fde047" stroke-width="4"/>
+        <rect x="32" y="57" width="10" height="16" fill="#facc15"/>
+        <rect x="22" y="72" width="30" height="8" rx="4" fill="#d97706"/>
+      </g>
+
+      <!-- Almari Loker Kanan -->
+      <g transform="translate(684,132)">
+        <rect x="10" y="-16" width="150" height="12" rx="6" fill="#bae6fd"/>
+        <rect x="16" y="-26" width="136" height="10" rx="5" fill="#fff"/>
+        <rect width="176" height="250" rx="14" fill="#fff" stroke="#e2e8f0" stroke-width="4"/>
+        <line x1="58" y1="0" x2="58" y2="250" stroke="#e2e8f0" stroke-width="3"/>
+        <line x1="118" y1="0" x2="118" y2="250" stroke="#e2e8f0" stroke-width="3"/>
+        <line x1="0" y1="125" x2="176" y2="125" stroke="#e2e8f0" stroke-width="3"/>
+      </g>
+
+      <!-- Cahaya Tingkap -->
+      <polygon points="900,0 740,0 500,420 900,420" fill="url(#sunBeam)"/>
+
+      <!-- Meja & Kerusi Murid Pastel -->
+      <g transform="translate(8,332)">
+        <rect x="14" y="0" width="96" height="32" rx="14" fill="#fda4af"/>
+        <rect x="0" y="30" width="124" height="12" rx="6" fill="#fff" stroke="#fecdd3" stroke-width="3"/>
+        <rect x="16" y="42" width="8" height="58" rx="4" fill="#cbd5e1"/>
+        <rect x="100" y="42" width="8" height="58" rx="4" fill="#cbd5e1"/>
+      </g>
+      <g transform="translate(772,332)">
+        <rect x="14" y="0" width="96" height="32" rx="14" fill="#fda4af"/>
+        <rect x="0" y="30" width="124" height="12" rx="6" fill="#fff" stroke="#fecdd3" stroke-width="3"/>
+        <rect x="16" y="42" width="8" height="58" rx="4" fill="#cbd5e1"/>
+        <rect x="100" y="42" width="8" height="58" rx="4" fill="#cbd5e1"/>
+      </g>
+
+      <!-- Bintang & Hati Comel Terapung -->
+      <g fill="#facc15" opacity="0.9">
+        <text x="316" y="130" font-size="28">✨</text>
+        <text x="565" y="122" font-size="26">⭐</text>
+        <text x="322" y="210" font-size="22">💛</text>
+        <text x="580" y="215" font-size="22">✨</text>
+      </g>
+
+      <!-- WATAK KUCING ADIWIRA COMEL (CHIBI / KAWAII) -->
+      <g filter="url(#dropShadow)">
+        <!-- Jubah Merah Jambu/Merah Berkibar -->
+        <path d="M388,186 C355,212 342,248 350,276 L552,276 C560,248 545,212 512,186 Z" fill="url(#capeRed)" stroke="#9f1239" stroke-width="3"/>
+
+        <!-- Tangan Kanan (Tabik Hormat Comel) -->
+        <g transform="translate(366,142) rotate(-18)">
+          <rect x="-18" y="0" width="36" height="58" rx="18" fill="url(#furGrad)" stroke="#b45309" stroke-width="3"/>
+          <!-- Sarung Tangan Merah & Tapak Kucing -->
+          <rect x="-19" y="-12" width="38" height="34" rx="17" fill="url(#capeRed)" stroke="#9f1239" stroke-width="3"/>
+          <circle cx="0" cy="4" r="7" fill="#fecdd3"/>
+          <circle cx="-8" cy="-4" r="3.5" fill="#fecdd3"/>
+          <circle cx="0" cy="-6" r="3.5" fill="#fecdd3"/>
+          <circle cx="8" cy="-4" r="3.5" fill="#fecdd3"/>
+        </g>
+
+        <!-- Badan Chibi Sut Biru -->
+        <path d="M394,185 C394,168 506,168 506,185 L516,272 L384,272 Z" fill="url(#suitBlue)" stroke="#1e3a8a" stroke-width="3.5"/>
+        <!-- Bintang Comel di Dada -->
+        <polygon points="450,196 456,210 471,211 460,221 463,235 450,227 437,235 440,221 429,211 444,210" fill="#fde047" stroke="#b45309" stroke-width="2"/>
+        <!-- Tali Pinggang Emas -->
+        <rect x="386" y="246" width="128" height="22" rx="11" fill="#facc15" stroke="#b45309" stroke-width="3"/>
+        <circle cx="450" cy="257" r="14" fill="#fef9c3" stroke="#b45309" stroke-width="3"/>
+
+        <!-- Tangan Kiri (Melambai Comel) -->
+        <g transform="translate(546,184) rotate(32)">
+          <rect x="-17" y="-36" width="34" height="58" rx="17" fill="url(#furGrad)" stroke="#b45309" stroke-width="3"/>
+          <rect x="-19" y="-50" width="38" height="34" rx="17" fill="url(#capeRed)" stroke="#9f1239" stroke-width="3"/>
+          <circle cx="0" cy="-33" r="7.5" fill="#fecdd3"/>
+          <circle cx="-8" cy="-41" r="3.5" fill="#fecdd3"/>
+          <circle cx="0" cy="-43" r="3.5" fill="#fecdd3"/>
+          <circle cx="8" cy="-41" r="3.5" fill="#fecdd3"/>
+        </g>
+
+        <!-- Kepala Kucing Chibi Besar & Bulat -->
+        <g transform="translate(450,115)">
+          <!-- Telinga Kucing Kiri & Kanan -->
+          <path d="M-64,-28 L-74,-78 L-26,-54 Z" fill="url(#furGrad)" stroke="#b45309" stroke-width="3.5" stroke-linejoin="round"/>
+          <path d="M-60,-34 L-66,-66 L-34,-50 Z" fill="#fda4af"/>
+          <path d="M64,-28 L74,-78 L26,-54 Z" fill="url(#furGrad)" stroke="#b45309" stroke-width="3.5" stroke-linejoin="round"/>
+          <path d="M60,-34 L66,-66 L34,-50 Z" fill="#fda4af"/>
+
+          <!-- Muka Gebu -->
+          <ellipse cx="0" cy="0" rx="76" ry="62" fill="url(#furGrad)" stroke="#b45309" stroke-width="3.5"/>
+          <!-- Corak Belang Oren Comel di Dahi -->
+          <path d="M-14,-60 L-8,-44 L0,-56 L8,-44 L14,-60" fill="none" stroke="#f59e0b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <!-- Topeng Adiwira Comel -->
+          <path d="M-68,-14 Q0,-4 68,-14 C72,6 54,18 28,12 Q0,4 -28,12 C-54,18 -72,6 -68,-14 Z" fill="url(#capeRed)" stroke="#9f1239" stroke-width="3"/>
+
+          <!-- Mata Besar Berkilau (Kawaii) -->
+          <g transform="translate(-30,0)">
+            <circle cx="0" cy="0" r="16" fill="#fff"/>
+            <circle cx="2" cy="1" r="12" fill="#1e1b4b"/>
+            <circle cx="-3" cy="-4" r="5" fill="#fff"/>
+            <circle cx="5" cy="5" r="2.5" fill="#fff"/>
+          </g>
+          <g transform="translate(30,0)">
+            <circle cx="0" cy="0" r="16" fill="#fff"/>
+            <circle cx="-2" cy="1" r="12" fill="#1e1b4b"/>
+            <circle cx="-5" cy="-4" r="5" fill="#fff"/>
+            <circle cx="3" cy="5" r="2.5" fill="#fff"/>
+          </g>
+
+          <!-- Pipi Merah Jambu -->
+          <ellipse cx="-48" cy="22" rx="12" ry="7" fill="#fda4af" opacity="0.75"/>
+          <ellipse cx="48" cy="22" rx="12" ry="7" fill="#fda4af" opacity="0.75"/>
+
+          <!-- Hidung Merah Jambu & Mulut Kucing (:3) -->
+          <path d="M-7,16 Q0,13 7,16 Q0,24 -7,16 Z" fill="#fb7185"/>
+          <path d="M-14,26 Q-7,33 0,25 Q7,33 14,26" fill="none" stroke="#78350f" stroke-width="3.5" stroke-linecap="round"/>
+
+          <!-- Misai Kucing Comel -->
+          <line x1="-58" y1="14" x2="-82" y2="10" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+          <line x1="-58" y1="24" x2="-82" y2="26" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+          <line x1="58" y1="14" x2="82" y2="10" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+          <line x1="58" y1="24" x2="82" y2="26" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+        </g>
+      </g>
+
+      <!-- KAD HURUF JAWI DI SUDUT LOGO -->
+      <!-- Kad Ba (Kiri Atas) -->
+      <g transform="translate(216,192) rotate(-9)" filter="url(#dropShadow)">
+        <rect width="78" height="72" rx="12" fill="#fffbeb" stroke="#f59e0b" stroke-width="3.5"/>
+        <rect x="24" y="-8" width="30" height="14" rx="4" fill="#fde047" opacity="0.9"/>
+        <text x="39" y="50" text-anchor="middle" font-family="'Noto Naskh Arabic', serif" font-size="44" font-weight="700" fill="#1e1b4b">ب</text>
+      </g>
+      <!-- Kad Kaf (Kiri Bawah) -->
+      <g transform="translate(204,408) rotate(-8)" filter="url(#dropShadow)">
+        <rect width="74" height="68" rx="12" fill="#fffbeb" stroke="#f59e0b" stroke-width="3.5"/>
+        <rect x="22" y="-7" width="30" height="13" rx="4" fill="#fde047" opacity="0.9"/>
+        <text x="37" y="48" text-anchor="middle" font-family="'Noto Naskh Arabic', serif" font-size="42" font-weight="700" fill="#1e1b4b">ك</text>
+      </g>
+      <!-- Kad Qaf (Kanan Bawah) -->
+      <g transform="translate(622,402) rotate(8)" filter="url(#dropShadow)">
+        <rect width="74" height="68" rx="12" fill="#fffbeb" stroke="#f59e0b" stroke-width="3.5"/>
+        <rect x="22" y="-7" width="30" height="13" rx="4" fill="#fde047" opacity="0.9"/>
+        <text x="37" y="48" text-anchor="middle" font-family="'Noto Naskh Arabic', serif" font-size="42" font-weight="700" fill="#1e1b4b">ق</text>
+      </g>
+
+      <!-- SEPANDUK SKROL UTAMA & LOGO JAWIQUEST -->
+      <g filter="url(#dropShadow)">
+        <!-- Skrol Gulungan Kiri & Kanan -->
+        <rect x="256" y="256" width="26" height="214" rx="13" fill="#d97706" stroke="#92400e" stroke-width="3"/>
+        <rect x="618" y="256" width="26" height="214" rx="13" fill="#d97706" stroke="#92400e" stroke-width="3"/>
+        <!-- Badan Skrol -->
+        <path d="M276,268 Q450,256 624,268 L624,452 Q450,438 276,452 Z" fill="url(#scrollGrad)" stroke="#92400e" stroke-width="4"/>
+
+        <!-- Reben Merah Jambu/Merah Subtajuk -->
+        <path d="M294,390 Q450,378 606,390 L594,432 Q450,420 306,432 Z" fill="#e11d48" stroke="#9f1239" stroke-width="3"/>
+        <text x="326" y="418" font-size="22" fill="#fef08a">★</text>
+        <text x="450" y="416" text-anchor="middle" font-family="'Trebuchet MS', sans-serif" font-size="25" font-weight="900" fill="#fff">Ekspedisi Tangga Jawi</text>
+        <text x="564" y="418" font-size="22" fill="#fef08a">★</text>
+
+        <!-- Teks Tajuk Besar: JawiQuest -->
+        <g font-family="'Trebuchet MS', Verdana, sans-serif" font-weight="900" font-size="82" text-anchor="middle">
+          <text x="430" y="362" stroke="#1e1b4b" stroke-width="14" stroke-linejoin="round">JawiQuest</text>
+          <text x="430" y="362" stroke="#ffffff" stroke-width="7" stroke-linejoin="round">JawiQuest</text>
+          <text x="430" y="362">
+            <tspan fill="url(#jawiGrad)">Jawi</tspan><tspan fill="url(#questGrad)">Quest</tspan>
+          </text>
+        </g>
+
+        <!-- Kanta Pembesar dengan Huruf Jim (ج) -->
+        <g transform="translate(622,292)">
+          <line x1="46" y1="-34" x2="64" y2="-46" stroke="#facc15" stroke-width="6" stroke-linecap="round"/>
+          <line x1="54" y1="-16" x2="76" y2="-20" stroke="#facc15" stroke-width="6" stroke-linecap="round"/>
+          <line x1="52" y1="2" x2="72" y2="8" stroke="#facc15" stroke-width="6" stroke-linecap="round"/>
+          <rect x="18" y="34" width="18" height="54" rx="8" transform="rotate(-32 18 34)" fill="#92400e" stroke="#451a03" stroke-width="3"/>
+          <circle cx="0" cy="0" r="46" fill="#fef9c3" stroke="#eab308" stroke-width="9"/>
+          <circle cx="0" cy="0" r="39" fill="none" stroke="#fef08a" stroke-width="3"/>
+          <text x="0" y="16" text-anchor="middle" font-family="'Noto Naskh Arabic', serif" font-size="56" font-weight="700" fill="#1e1b4b">ج</text>
+        </g>
+      </g>
+    </svg>
+
+    <!-- Butang Utama JOM MULAKAN -->
+    <div class="hero-cta-wrap">
+      <button class="cta-hero" id="go">🐾 JOM MULAKAN</button>
+    </div>
+  </div>
+
+  <!-- Tetapan Pemain & Arahan Ringkas -->
+  <div class="setup-panel">
+    <div class="sub" style="margin-top:0">Misi Dunia Jawi · Tahun 2</div>
+    <div class="row seg" id="modeSeg">
+      <button class="on" data-m="2">2 PEMAIN</button>
+      <button data-m="3">3 PEMAIN</button>
+    </div>
+    <div class="row">
+      <input type="text" id="n1" maxlength="12" placeholder="Nama Pemain 1">
+      <input type="text" id="n2" maxlength="12" placeholder="Nama Pemain 2">
+      <input type="text" id="n3" maxlength="12" placeholder="Nama Pemain 3" class="hide">
+    </div>
+    <div class="row">
+      <button class="bl" id="snd">🔊 BUNYI: HIDUP</button>
+    </div>
+    <div class="how-box">
+      <h3 style="margin:0 0 4px;color:var(--p);font-size:17px">📜 Arahan Permainan</h3>
+      <ol class="how">
+        <li>Tekan <b>ROLL DICE</b> dan gerakkan token anda.</li>
+        <li>Tangga 🪜 membawa anda naik. Ular 🐍 membawa anda turun.</li>
+        <li>Berhenti di petak ⭐ (5, 10, 15 … 50)? Jawab cabaran Jawi!</li>
+        <li>Jawapan betul dapat <b>10 mata</b> dan bintang. Jawapan salah? Cuba lagi.</li>
+        <li>Sampai petak <b>50</b> dan jawab cabaran terakhir untuk menang! 🏆</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="game" class="hide">
+  <div class="top"><b>🗺️ JawiQuest</b><span><button class="bl" id="snd2">🔊 BUNYI: HIDUP</button> <button class="bl" id="restart">MAIN SEMULA</button></span></div>
+  <div class="hud" id="hud"></div>
+  <div class="jungle"><div class="sign">🐍 JAWIQUEST: EKSPEDISI TANGGA JAWI</div><div id="board"></div><div class="zoo">🦓🌿🐒🌴🦒🌿🦌</div></div>
+  <div class="ctl"><div class="die" id="die"></div><button class="big" id="rollBtn">🎲 ROLL DICE</button></div>
+  <div id="msg"></div>
+</section>
+</div>
+
+<div id="modal" class="ov2 hide"></div>
+
+<script>
+/* ============================================================
+   GURU: UBAH SUAI SOALAN DI SINI
+   M(soalan, [jawapanBetul, salah1, salah2...], petunjuk, gambar)
+      -> jawapan betul SENTIASA yang pertama dalam senarai; sistem
+         mengacak susunan sendiri (jawapan betul tidak akan berubah).
+   T(soalan, jawapanRumi, petunjuk, gambar/ejaanJawi)
+      -> murid menaip jawapan Rumi.
+   Teks Jawi boleh ditulis terus dalam soalan atau pilihan.
+   ============================================================ */
+const M=(q,o,h,p)=>({t:'m',q,o,h:h||'Cuba lagi, kamu boleh!',p}),
+      T=(q,a,h,p)=>({t:'t',q,a,h:h||'Cuba lagi, kamu boleh!',p});
+const PEPET='E-pepet tidak ditulis dengan huruf Ya.', TALING='E-taling ditulis dengan huruf Ya.', ALIF='Suku kata tertutup KVK: huruf Alif digugurkan.';
+const CHALLENGES={
+ 5:{n:'Misi E-Pepet',i:'Pilih ejaan Jawi yang betul bagi perkataan e-pepet.',qs:[
+  M('Pilih perkataan Jawi yang berbunyi e-pepet.',['تلور','ميجا','كيرا'],PEPET),
+  M('Pilih perkataan Jawi yang berbunyi e-pepet.',['ڤنسل','بيچا','تيكو'],PEPET),
+  M('Pilih perkataan Jawi yang berbunyi e-pepet.',['سكوله','ڤيتا','كيك'],PEPET),
+  M('Baca perkataan Jawi ini. Apakah bunyi “e” dalam perkataan ini?',['e-pepet','e-taling'],PEPET,'ڤنسل')]},
+ 10:{n:'Misi E-Taling',i:'Pilih atau taip jawapan bagi perkataan e-taling.',qs:[
+  M('Pilih perkataan Jawi yang berbunyi e-taling.',['كيرا','تلور','لمبو'],TALING),
+  M('Pilih perkataan Jawi yang berbunyi e-taling.',['تيكو','ڤنسل','سكوله'],TALING),
+  M('Baca perkataan Jawi ini. Apakah bunyi “e” dalam perkataan ini?',['e-taling','e-pepet'],TALING,'ميجا'),
+  T('Taip perkataan Rumi bagi ejaan Jawi ini.','beca',TALING+' Bunyinya be-ca.','بيچا')]},
+ 15:{n:'Pemburu Alif',i:'Adakah Alif digugurkan dalam suku kata KVK?',qs:[
+  M('Ejaan Jawi “تاندا” (tanda). Perlukah Alif digugurkan dalam suku kata KVK “tan”?',['Ya, Alif perlu digugurkan','Tidak perlu digugurkan'],ALIF),
+  M('Ejaan Jawi “هانتر” (hantar). Perlukah Alif digugurkan dalam suku kata KVK?',['Ya, Alif perlu digugurkan','Tidak perlu digugurkan'],ALIF),
+  M('Ejaan Jawi “سامبل” (sambal). Perlukah Alif digugurkan dalam suku kata KVK?',['Ya, Alif perlu digugurkan','Tidak perlu digugurkan'],ALIF)]},
+ 20:{n:'Detektif Ejaan',i:'Siasat dan pilih ejaan Jawi yang betul.',qs:[
+  M('Antara ejaan ini, yang mana betul bagi “meja”?',['ميجا','مجا','ماجا'],TALING),
+  M('Antara ejaan ini, yang mana betul bagi “malam”?',['مالم','مالام','ملم'],'Suku kata “ma” ada Alif. Suku kata “lam” (KVK) tiada Alif.'),
+  M('Antara ejaan ini, yang mana betul bagi “bantal”?',['بنتل','بانتل','بنتال'],ALIF)]},
+ 25:{n:'Cabaran Campuran 1',i:'E-pepet atau e-taling? Gunakan huruf Ya dengan betul.',qs:[
+  M('Perkataan manakah bunyi e-taling?',['peta','telur','lembu'],'E-taling: bunyi “e” seperti dalam “beca”.'),
+  M('Perkataan manakah bunyi e-pepet?',['lembu','teko','kek'],'E-pepet: bunyi “e” seperti dalam “telur”.'),
+  M('Pilih ejaan Jawi bagi “peta” (e-taling).',['ڤيتا','ڤتا'],TALING)]},
+ 30:{n:'Pemburu Alif 2',i:'Pilih ejaan yang mengikut hukum gugur Alif KVK.',qs:[
+  M('Pilih ejaan Jawi yang betul.',['تندا','هانتر','سامبل'],ALIF),
+  M('Pilih ejaan Jawi yang betul.',['بنتل','لامڤو','ڤانتاي'],ALIF),
+  M('Pilih ejaan Jawi yang betul.',['همبا','هامبا','سامبل'],ALIF)]},
+ 35:{n:'Misi Pakar E-Pepet',i:'Lihat gambar dan pilih ejaan Jawi e-pepet.',qs:[
+  M('Gambar ini ialah “lembu”. Pilih ejaan Jawi.',['لمبو','ليمبو'],PEPET,'🐄'),
+  M('Gambar ini ialah “pena”. Pilih ejaan Jawi.',['ڤنا','ڤينا'],PEPET,'🖊️'),
+  M('Gambar ini ialah “sekolah”. Pilih ejaan Jawi.',['سكوله','سيكوله'],PEPET,'🏫')]},
+ 40:{n:'Misi Pakar E-Taling',i:'Lihat gambar dan pilih ejaan Jawi e-taling.',qs:[
+  M('Gambar ini ialah “kek”. Pilih ejaan Jawi.',['كيك','كك'],TALING,'🍰'),
+  M('Gambar ini ialah “beg”. Pilih ejaan Jawi.',['بيڬ','بڬ'],TALING,'🎒'),
+  M('Gambar ini ialah “peta”. Pilih ejaan Jawi.',['ڤيتا','ڤتا'],TALING,'🗺️')]},
+ 45:{n:'Cabaran Betulkan Ejaan',i:'Cari kesalahan dan pilih pembetulan yang tepat.',qs:[
+  M('Ejaan “تكو” (teko) salah. Pilih ejaan yang betul.',['تيكو','تيكوا','تاكو'],TALING),
+  M('Ejaan “هانتر” (hantar) salah. Pilih ejaan yang betul.',['هنتر','هنتار','هانتار'],ALIF),
+  M('Ejaan “ليمبو” (lembu) salah. Pilih ejaan yang betul.',['لمبو','لامبو','لمبوا'],PEPET)]},
+ 50:{n:'Cabaran Juara Jawi',i:'Cabaran gabungan! Anda hampir menjadi juara.',qs:[
+  M('Pilih ejaan Jawi bagi “beg” (e-taling).',['بيڬ','بڬ'],TALING),
+  M('Pilih ejaan Jawi bagi “lampu”.',['لمڤو','لامڤو'],ALIF),
+  T('Taip perkataan Rumi bagi ejaan Jawi ini.','kera',TALING+' Bunyinya ke-ra.','كيرا')]}
+};
+/* Tangga (bawah -> atas) dan ular (kepala -> ekor). Elakkan gandaan 5. */
+const LADDERS={2:13,7:18,16:27,21:33,36:47};
+const SNAKES={17:4,29:14,34:22,44:31,49:38};
+const PRAISE=['Hebat!','Syabas!','Anda Memang Bijak!','Teruskan Misi!'];
+/* ============================================================ */
+
+const $=s=>document.querySelector(s), sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const fmt=s=>String(s).replace(/[\u0600-\u06FF]+/g,m=>`<bdi class="jw">${m}</bdi>`);
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const COLORS=['#dc2626','#2563eb','#16a34a'], FACES=['🐱','🦊','🐼'], PIPS=[[],[4],[0,8],[0,4,8],[0,2,6,8],[0,2,4,6,8],[0,2,3,5,6,8]];
+const BG=['#a9d8ea','#f7d154'];
+let mode=2,S=null,cols=0;
+
+/* ---------- Kesan bunyi (Web Audio, tiada fail luaran). Tukar SND=false untuk mematikan secara lalai ---------- */
+let SND=true,AC=null;
+function tone(f,t,d,type,v){const o=AC.createOscillator(),g=AC.createGain(),s=AC.currentTime+t;o.type=type||'sine';o.frequency.setValueAtTime(f,s);g.gain.setValueAtTime(v||.06,s);g.gain.exponentialRampToValueAtTime(.0001,s+d);o.connect(g);g.connect(AC.destination);o.start(s);o.stop(s+d+.02)}
+const SFX={start:[[523,0,.15],[659,.15,.15],[784,.3,.25]],roll:[[200,0,.06,'square'],[260,.1,.06,'square'],[220,.2,.06,'square'],[300,.3,.06,'square'],[240,.4,.06,'square']],result:[[880,0,.12]],step:[[440,0,.07,'triangle']],bell:[[988,0,.3],[1319,.12,.4]],right:[[784,0,.12],[1047,.12,.3]],wrong:[[330,0,.2,'triangle'],[262,.18,.3,'triangle']],ladder:[[392,0,.1],[494,.1,.1],[587,.2,.1],[784,.3,.25]],snake:[[500,0,.12,'sawtooth',.03],[400,.12,.12,'sawtooth',.03],[300,.24,.12,'sawtooth',.03],[200,.36,.2,'sawtooth',.03]],turn:[[660,0,.1],[550,.1,.15]],star:[[1319,0,.1],[1568,.1,.25]],win:[[523,0,.15],[659,.15,.15],[784,.3,.15],[1047,.45,.4],[784,.85,.15],[1047,1,.5]]};
+function sfx(n){if(!SND)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();SFX[n].forEach(a=>tone(a[0],a[1],a[2],a[3],a[4]))}catch(e){}}
+const togg=()=>{SND=!SND;['#snd','#snd2'].forEach(s=>$(s).textContent=SND?'🔊 BUNYI: HIDUP':'🔇 BUNYI: MATI')};
+$('#snd').onclick=togg;$('#snd2').onclick=togg;
+
+$('#modeSeg').onclick=e=>{const b=e.target.closest('button');if(!b)return;mode=+b.dataset.m;
+  [...$('#modeSeg').children].forEach(x=>x.classList.toggle('on',x===b));$('#n3').classList.toggle('hide',mode!==3)};
+$('#go').onclick=()=>{
+  const names=['#n1','#n2','#n3'].map((s,i)=>$(s).value.trim()||'Pemain '+(i+1)).slice(0,mode);
+  S={cur:0,busy:false,over:false,ps:names.map(n=>({n,pos:1,score:0,stars:0,done:{},last:{}}))};
+  $('#start').classList.add('hide');$('#game').classList.remove('hide');
+  sfx('start');buildBoard();hud();setDie(1);turnMsg();$('#rollBtn').disabled=false};
+$('#restart').onclick=()=>{S=null;closeModal();$('#game').classList.add('hide');$('#start').classList.remove('hide')};
+
+const cellXY=n=>{const r=Math.floor((n-1)/cols);let c=(n-1)%cols;if(r%2)c=cols-1-c;const rows=50/cols;
+  return{x:(c+.5)/cols*100,y:(rows-1-r+.5)/rows*100,cx:(c+.5)*100,cy:(rows-1-r+.5)*100}};
+function buildBoard(){
+  cols=innerWidth<600?5:10;const rows=50/cols,B=$('#board');
+  B.style.cssText=`--cols:${cols};grid-template-columns:repeat(${cols},1fr);aspect-ratio:${cols}/${rows}`;
+  let h='';
+  for(let vr=0;vr<rows;vr++)for(let vc=0;vc<cols;vc++){
+    const r=rows-1-vr,n=r*cols+(r%2?cols-1-vc:vc)+1,ch=n%5===0;
+    h+=`<div class="cell${ch?' ch':''}" style="background:${BG[n%2]}"><span>${n===50?'🏆':n===1?'🚩':''}${n}</span>${ch?'<i>⭐</i>':''}</div>`}
+  h+=`<svg class="ov" viewBox="0 0 ${cols*100} ${rows*100}">${drawLines()}</svg>`;
+  B.innerHTML=h+S.ps.map((p,i)=>`<div class="tok" id="tk${i}" style="background:${COLORS[i]}">${FACES[i]}</div>`).join('');
+  S.ps.forEach((p,i)=>place(i,p.pos));
+}
+function drawLines(){
+  let s='';
+  for(const a in LADDERS){const A=cellXY(+a),B=cellXY(LADDERS[a]);
+    const dx=B.cx-A.cx,dy=B.cy-A.cy,L=Math.hypot(dx,dy),nx=-dy/L*12,ny=dx/L*12;
+    s+=`<g opacity=".9" stroke-linecap="round"><line x1="${A.cx+nx}" y1="${A.cy+ny}" x2="${B.cx+nx}" y2="${B.cy+ny}" stroke="#2563eb" stroke-width="7"/><line x1="${A.cx-nx}" y1="${A.cy-ny}" x2="${B.cx-nx}" y2="${B.cy-ny}" stroke="#2563eb" stroke-width="7"/>`;
+    for(let k=1;k<L/26;k++){const t=k*26/L;s+=`<line x1="${A.cx+nx+dx*t}" y1="${A.cy+ny+dy*t}" x2="${A.cx-nx+dx*t}" y2="${A.cy-ny+dy*t}" stroke="#ef4444" stroke-width="5"/>`}
+    s+='</g>'}
+  let k=0;
+  for(const a in SNAKES){const H=cellXY(+a),T=cellXY(SNAKES[a]);
+    const dx=T.cx-H.cx,dy=T.cy-H.cy,L=Math.hypot(dx,dy),nx=-dy/L*38,ny=dx/L*38,col=k++%2?'#16a34a':'#7c3aed';
+    s+=`<g opacity=".88" stroke-linecap="round"><path d="M${H.cx} ${H.cy} C${H.cx+dx/3+nx} ${H.cy+dy/3+ny} ${H.cx+dx*2/3-nx} ${H.cy+dy*2/3-ny} ${T.cx} ${T.cy}" fill="none" stroke="${col}" stroke-width="13"/><circle cx="${H.cx}" cy="${H.cy}" r="16" fill="${col}"/><circle cx="${H.cx-6}" cy="${H.cy-4}" r="4.5" fill="#fff"/><circle cx="${H.cx+6}" cy="${H.cy-4}" r="4.5" fill="#fff"/><circle cx="${H.cx-6}" cy="${H.cy-4}" r="2"/><circle cx="${H.cx+6}" cy="${H.cy-4}" r="2"/></g>`}
+  return s;
+}
+function place(i,n){const p=cellXY(n),t=$('#tk'+i);if(!t)return;t.style.left=(p.x+(i-(S.ps.length-1)/2)*(22/cols))+'%';t.style.top=p.y+'%'}
+addEventListener('resize',()=>{const c=innerWidth<600?5:10;if(S&&c!==cols&&!$('#game').classList.contains('hide'))buildBoard()});
+
+const badge=s=>s>=9?'🥇':s>=6?'🥈':s>=3?'🥉':'';
+function hud(){$('#hud').style.gridTemplateColumns='repeat('+S.ps.length+',1fr)';
+  $('#hud').innerHTML=S.ps.map((p,i)=>`<div class="pp${i===S.cur?' act':''}" style="border-color:${i===S.cur?'#facc15':COLORS[i]}">${FACES[i]} ${esc(p.n)} ${badge(p.stars)}<small>⭐ ${p.stars} · ${p.score} mata · petak ${p.pos}</small></div>`).join('')}
+const msg=t=>$('#msg').textContent=t;
+const turnMsg=()=>msg(`Giliran: ${S.ps[S.cur].n} ${FACES[S.cur]} – tekan ROLL DICE`);
+function setDie(v){$('#die').innerHTML=Array.from({length:9},(_,i)=>`<b class="${PIPS[v].includes(i)?'on':''}"></b>`).join('')}
+
+$('#rollBtn').onclick=async()=>{
+  if(S.busy||S.over)return;S.busy=true;$('#rollBtn').disabled=true;
+  const d=$('#die');d.classList.add('roll');sfx('roll');msg('Dadu sedang bergolek…');
+  for(let i=0;i<8;i++){setDie(1+Math.floor(Math.random()*6));await sleep(90)}
+  d.classList.remove('roll');
+  const v=1+Math.floor(Math.random()*6);setDie(v);sfx('result');const p=S.ps[S.cur];msg(`${p.n} mendapat ${v}!`);await sleep(600);
+  if(p.pos+v>50){msg('Melebihi petak 50! Tunggu giliran seterusnya.');await sleep(1200);return endTurn()}
+  for(let k=0;k<v;k++){p.pos++;place(S.cur,p.pos);sfx('step');await sleep(300)}
+  hud();
+  if(LADDERS[p.pos]){msg('🪜 Tangga! Naik ke atas!');sfx('ladder');await sleep(500);p.pos=LADDERS[p.pos];place(S.cur,p.pos);await sleep(900)}
+  else if(SNAKES[p.pos]){msg('🐍 Ular! Gelongsor ke bawah!');sfx('snake');await sleep(500);p.pos=SNAKES[p.pos];place(S.cur,p.pos);await sleep(900)}
+  hud();
+  if(CHALLENGES[p.pos])await challenge(p);
+  if(p.pos===50)return win();
+  endTurn();
+};
+function endTurn(){if(S.ps.length>1){S.cur=(S.cur+1)%S.ps.length;sfx('turn')}S.busy=false;hud();turnMsg();$('#rollBtn').disabled=false}
+
+function challenge(p){return new Promise(res=>{
+  const C=CHALLENGES[p.pos],pool=C.qs;let qi;
+  do{qi=Math.floor(Math.random()*pool.length)}while(pool.length>1&&qi===p.last[p.pos]);p.last[p.pos]=qi;
+  const q=pool[qi],first=!p.done[p.pos];
+  const Mo=$('#modal');Mo.classList.remove('hide');sfx('bell');
+  const ans=q.t==='m'?shuffle(q.o.map((x,i)=>({x,ok:i===0}))):null;
+  Mo.innerHTML=`<div class="modal"><div class="stars">⭐🔔⭐</div><h2>Petak ${p.pos}: ${C.n}</h2><div style="color:var(--b);font-weight:700">${C.i}</div>
+  ${q.p?`<div class="pic">${fmt(q.p)}</div>`:''}<div class="mq">${fmt(q.q)}</div><div id="ans"></div><div id="hint"></div><div id="fb"></div></div>`;
+  const A=$('#ans');
+  const good=()=>{
+    if(first){p.done[p.pos]=1;p.score+=10;p.stars++}
+    sfx('right');if(first)setTimeout(()=>sfx('star'),450);hud();$('#hint').innerHTML='';
+    $('#fb').innerHTML=`<div class="fb">✅ ${PRAISE[Math.floor(Math.random()*4)]}</div><div class="stars">${first?'⭐ +10 mata':'(Mata sudah diterima)'}</div><button class="big g" id="next">TERUSKAN MISI ▶</button>`;
+    $('#next').onclick=()=>{closeModal();res()};
+  };
+  const bad=()=>{sfx('wrong');$('#hint').innerHTML=`<div class="hint">💡 Hampir! ${q.h}<br>Cuba lagi.</div>`};
+  if(q.t==='m'){
+    A.innerHTML=ans.map((a,i)=>`<button class="opt" data-i="${i}">${fmt(a.x)}</button>`).join('');
+    A.onclick=e=>{const b=e.target.closest('.opt');if(!b||b.disabled||$('#next'))return;
+      if(ans[+b.dataset.i].ok){b.classList.add('ok');[...A.children].forEach(x=>x.disabled=true);good()}
+      else{b.classList.add('bad');b.disabled=true;bad()}}
+  }else{
+    A.innerHTML=`<input type="text" id="ti" autocomplete="off" autocapitalize="off" placeholder="Taip di sini"><div><button class="big bl" id="chk" style="margin-top:8px">SEMAK</button></div>`;
+    const chk=()=>{if($('#next'))return;const v=$('#ti').value.trim().toLowerCase();
+      if(v===q.a){$('#ti').disabled=true;$('#chk').disabled=true;good()}else bad()};
+    $('#chk').onclick=chk;$('#ti').onkeydown=e=>{if(e.key==='Enter')chk()};setTimeout(()=>$('#ti').focus(),50);
+  }
+})}
+const closeModal=()=>{$('#modal').classList.add('hide');$('#modal').innerHTML=''};
+
+function win(){
+  S.over=true;sfx('win');const w=S.ps[S.cur];
+  $('#modal').classList.remove('hide');
+  $('#modal').innerHTML=`<div class="modal"><div style="font-size:70px">🏆</div><div class="stars">⭐⭐⭐</div><h2>TAHNIAH, ${esc(w.n)}!</h2>
+  <div class="mq">Anda ialah Juara Jawi! 🎉</div>
+  ${S.ps.map((p,i)=>`<div class="pp" style="margin:6px 0;border-color:${COLORS[i]}">${FACES[i]} ${esc(p.n)} ${badge(p.stars)}<small>⭐ ${p.stars} bintang · ${p.score} mata</small></div>`).join('')}
+  <button class="big g" id="again" style="margin-top:8px">MAIN SEMULA</button></div>`;
+  $('#again').onclick=()=>{closeModal();const n=S.ps.map(p=>p.n);S=null;$('#game').classList.add('hide');$('#start').classList.remove('hide');
+    $('#n1').value=n[0];if(n[1])$('#n2').value=n[1];if(n[2])$('#n3').value=n[2]};
+}
+</script>
+</body>
+</html>
